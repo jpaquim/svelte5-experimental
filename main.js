@@ -1,6 +1,6 @@
 import {
   mount
-} from "./chunk-VB2NFNXM.js";
+} from "./chunk-L6V35OWK.js";
 import {
   current_component_context,
   destroy_signal,
@@ -16,24 +16,30 @@ import {
   selector,
   tick,
   untrack
-} from "./chunk-T3PU6ST4.js";
-import "./chunk-ZADVA3HR.js";
-import "./chunk-ZS7NZCD4.js";
+} from "./chunk-MJHIVLLY.js";
+import "./chunk-CAF54RTH.js";
+import "./chunk-LQ2VYIYD.js";
 
-// src/main/index.ts
+// src/main/index.js
 function onMount(fn) {
   if (!is_ssr) {
     effect(() => {
       const result = untrack(fn);
       if (typeof result === "function") {
-        return result;
+        return (
+          /** @type {() => any} */
+          result
+        );
       }
     });
   }
 }
 function getContext(key) {
   const context_map = get_or_init_context_map();
-  return context_map.get(key);
+  return (
+    /** @type {undefined | V} */
+    context_map.get(key)
+  );
 }
 function setContext(key, value) {
   const context_map = get_or_init_context_map();
@@ -49,9 +55,7 @@ function getAllContexts() {
   return context_map;
 }
 function create_custom_event(type, detail, { bubbles = false, cancelable = false } = {}) {
-  const e = document.createEvent("CustomEvent");
-  e.initCustomEvent(type, bubbles, cancelable, detail);
-  return e;
+  return new CustomEvent(type, { detail, bubbles, cancelable });
 }
 function createEventDispatcher() {
   const component_context = current_component_context;
@@ -59,15 +63,23 @@ function createEventDispatcher() {
     throw new Error("createEventDispatcher can only be used during component initialisation.");
   }
   return (type, detail, options) => {
-    const events = component_context.events[type];
+    const events = component_context.events[
+      /** @type {any} */
+      type
+    ];
     if (events) {
       const callbacks = is_array(events) ? events.slice() : [events];
-      const event = create_custom_event(type, detail, options);
+      const event = create_custom_event(
+        /** @type {string} */
+        type,
+        detail,
+        options
+      );
       for (const fn of callbacks) {
         if (is_signal(fn)) {
-          get(fn)(event);
+          get(fn).call(component_context.accessors, event);
         } else {
-          fn(event);
+          fn.call(component_context.accessors, event);
         }
       }
       return !event.defaultPrevented;
@@ -84,12 +96,18 @@ function init_update_callbacks() {
     execute() {
       if (!called_before) {
         called_before = true;
-        untrack(() => update_callbacks.before.forEach((c) => c()));
+        untrack(() => update_callbacks.before.forEach(
+          /** @param {any} c */
+          (c) => c()
+        ));
         if (!called_after) {
           effect(() => {
             called_before = false;
             called_after = true;
-            untrack(() => update_callbacks.after.forEach((c) => c()));
+            untrack(() => update_callbacks.after.forEach(
+              /** @param {any} c */
+              (c) => c()
+            ));
             const managed = managed_effect(() => {
               destroy_signal(managed);
               called_after = false;

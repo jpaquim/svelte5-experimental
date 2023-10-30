@@ -1,8 +1,9 @@
-// src/internal/common.ts
+// src/internal/common.js
 var EMPTY_FUNC = () => {
 };
 function is_promise(value) {
-  return !!value && (typeof value === "object" || typeof value === "function") && typeof value.then === "function";
+  return !!value && (typeof value === "object" || typeof value === "function") && typeof /** @type {any} */
+  value.then === "function";
 }
 
 // src/store/utils.js
@@ -22,4 +23,4 @@ export {
   is_promise,
   subscribe_to_store
 };
-//# sourceMappingURL=chunk-ZADVA3HR.js.map
+//# sourceMappingURL=chunk-CAF54RTH.js.map

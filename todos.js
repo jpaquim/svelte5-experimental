@@ -1,9 +1,24 @@
 // App.svelte (Svelte v5.0.0-preview)
 // Note: compiler output will change before 5.0 is released!
-import * as $ from "./internal.js";
+import * as $ from "svelte/internal";
+
+var object_proto = {
+	get done() {
+		return $.get(this.__done);
+	},
+	get text() {
+		return $.get(this.__text);
+	},
+	set done(value) {
+		$.set(this.__done, value);
+	},
+	set text(value) {
+		$.set(this.__text, value);
+	}
+};
 
 const each_block = $.template(`<div><input> <input type="checkbox"></div>`);
-var main = $.template(`<input> <!----> <p> </p>`, true);
+var frag = $.template(`<input> <!> <p> </p>`, true);
 
 export default function App($$anchor, $$props, $$events, $$slots) {
 	$.push($$events, true);
@@ -22,18 +37,9 @@ export default function App($$anchor, $$props, $$events, $$slots) {
 		$.set(todos, [
 			...$.get(todos),
 			{
-				get done() {
-					return $.get(done);
-				},
-				set done(value) {
-					$.set(done, value);
-				},
-				get text() {
-					return $.get(text);
-				},
-				set text(value) {
-					$.set(text, value);
-				}
+				__done: done,
+				__text: text,
+				__proto__: object_proto
 			}
 		]);
 
@@ -41,7 +47,7 @@ export default function App($$anchor, $$props, $$events, $$slots) {
 	}
 
 	/* Init */
-	var fragment = $.open_frag($$anchor, main);
+	var fragment = $.open_frag($$anchor, true, frag);
 
 	var input = $.child_frag(fragment);
 	var node = $.sibling($.sibling(input));
@@ -49,9 +55,9 @@ export default function App($$anchor, $$props, $$events, $$slots) {
 	var text_1 = $.child(p);
 
 	/* Update */
-	$.text(text_1, () => `${$.stringify(remaining($.get(todos)))} remaining`);
+	$.text_effect(text_1, () => `${$.stringify(remaining($.get(todos)))} remaining`);
 
-	$.event("keydown", input, addTodo, false);
+	input.__keydown = addTodo;
 
 	$.each(
 		node,
@@ -60,10 +66,12 @@ export default function App($$anchor, $$props, $$events, $$slots) {
 		null,
 		($$anchor, todo, $$index) => {
 			/* Init */
-			var div = $.open($$anchor, each_block);
+			var div = $.open($$anchor, true, each_block);
 
 			var input_1 = $.child(div);
+			$.remove_input_attr_defaults(input_1);
 			var input_2 = $.sibling($.sibling(input_1));
+			$.remove_input_attr_defaults(input_2);
 			$.bind_value(input_1, () => $.unwrap(todo).text, $$value => $.unwrap(todo).text = $$value);
 			$.bind_checked(input_2, () => $.unwrap(todo).done, $$value => $.unwrap(todo).done = $$value);
 			$.close($$anchor, div);
@@ -74,3 +82,5 @@ export default function App($$anchor, $$props, $$events, $$slots) {
 	$.close_frag($$anchor, fragment);
 	$.pop();
 }
+
+$.delegate(["keydown"]);
